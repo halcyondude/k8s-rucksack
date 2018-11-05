@@ -1,5 +1,8 @@
 - [Run a local kubernetes cluster on your MacBook](#run-a-local-kubernetes-cluster-on-your-macbook)
   - [Who might want to do this](#who-might-want-to-do-this)
+  - [But wait...Why not mikikube?](#but-waitwhy-not-mikikube)
+  - [Run Kubernetes (itself) as...docker containers](#run-kubernetes-itself-asdocker-containers)
+    - [The now (and future): K8s and containerd, CRI](#the-now-and-future-k8s-and-containerd-cri)
   - [Let's Go!](#lets-go)
     - [Install Docker CI for Mac](#install-docker-ci-for-mac)
     - [Enable Kubernetes Support](#enable-kubernetes-support)
@@ -7,17 +10,14 @@
     - [deploy the kubernetes dashboard](#deploy-the-kubernetes-dashboard)
     - [A small note on proxies](#a-small-note-on-proxies)
   - [Connect to the dashboard](#connect-to-the-dashboard)
-  - [Self Guided demo... Deploy the k8s.io Guestbook example](#self-guided-demo-deploy-the-k8sio-guestbook-example)
-    - [Combat RSI: kubectl/kubens](#combat-rsi-kubectlkubens)
+  - [Example: Deploy the k8s.io guestbook sample](#example-deploy-the-k8sio-guestbook-sample)
+    - [Create namespace: "guestbook-demo"](#create-namespace-%22guestbook-demo%22)
+    - [Tip: Combat RSI: kubectl/kubens](#tip-combat-rsi-kubectlkubens)
     - [Example: Deploying PHP Guestbook application with Redis](#example-deploying-php-guestbook-application-with-redis)
-    - [Example: Dashboard after deploying guestbook example](#example-dashboard-after-deploying-guestbook-example)
-    - [Example: Connecting to the guestbook](#example-connecting-to-the-guestbook)
+    - [Example: Dashboard after deploying guestbook](#example-dashboard-after-deploying-guestbook)
+    - [Example: kubectl CLI after deploying guestbook](#example-kubectl-cli-after-deploying-guestbook)
     - [Example: Clean up](#example-clean-up)
-  - [Why not mikikube?](#why-not-mikikube)
-  - [Run Kubernetes (itself) as...docker containers](#run-kubernetes-itself-asdocker-containers)
-    - [Breadcrumb trail](#breadcrumb-trail)
-    - [The now (and future): K8s and containerd, CRI](#the-now-and-future-k8s-and-containerd-cri)
-
+  
 # Run a local kubernetes cluster on your MacBook
 
 This is a quickstart guide to using kubernetes locally on your Mac.  Following it will yield a lightweight (fast) kuberenetes cluster for local development, fun and profit.  
@@ -28,9 +28,62 @@ This is a quickstart guide to using kubernetes locally on your Mac.  Following i
 
 - Anyone who's developing containerzed applications or microservices and deploying them to Kubernetes.
 - Anyone without access (or funds) to run dev sandbox clusters in GKE / AWS / Azure / ____.
-- Anyone with    access (or funds) to run dev sandbox clusters in GKE / AWS / Azure / ____.
-- Anyone who wants to rapidly prototype K8s configuration / yamls locally.  Without needing to be connected to the internets.
+- Anyone who wants to rapidly prototype K8s configuration / yamls locally.
 - Anyone (ok this is me) who likes waiting ms (vs. sec) for page refreshes --> Kubernetes Dashboard.
+
+---
+
+## But wait...Why not mikikube?
+
+You can!  It works as advertised and designed.
+
+- [minikube] runs a local VM that is a one-node cluster.
+- [minikube] exposes a different interface/workflow/command line than working with a production cluster.
+  - `minikube this`
+  - `minikube that`
+  - `minikube sometimesTheSameAsK8sSometimesNot`
+- It can interface with a [variety of back ends ](https://github.com/kubernetes/minikube#quickstart)
+- There's some degree of effort to sorting out various drivers, configuration, etc.
+- There's so much to learn about minikube itself!
+  - How to mount host folders (`minikube mount localPath:vmPath`)
+  - How to manage [minikube add-ons](https://github.com/kubernetes/minikube/blob/master/docs/addons.md) such as coredns, ingress, heapster, dashboard, etc...
+  - How to debug minikube itself!
+- ...
+
+After getting things working, your laptop will be hard at work running / maintaining minikube in a VM.  You will also now have another layer of abstraction to feed/water/understand/love (minikube itself).  
+
+_There is another way..._
+
+[minikube]: https://github.com/kubernetes/minikube
+
+## Run Kubernetes (itself) as...docker containers
+
+Docker did this. It's awesome. A full exploration of moby, containerd, cri, and the general technical approach (the reason *why* IMHO it's awesome) is beyond the scope of this quickstart.
+
+Here's a bit of context and history, in a densly packed infoblast :)
+
+_(taken from [mobyproject.org post](https://blog.mobyproject.org/moby-and-kubernetes-bf888ab31e38))_
+
+![containerd](img/containerd-timeline.png)
+
+- <https://blog.docker.com/2017/10/docker-for-mac-and-windows-with-kubernetes-beta>
+- <https://blog.docker.com/2017/10/kubernetes-docker-platform-and-moby-project>
+- <https://blog.docker.com/2018/01/docker-mac-kubernetes>
+- <https://blog.mobyproject.org/moby-and-kubernetes-bf888ab31e38>
+- <https://blog.docker.com/2018/07/kubernetes-is-now-available-in-docker-desktop-stable-channel>
+
+### The now (and future): K8s and containerd, CRI
+
+_(taken from [Liu Lantao's talk](https://www.slideshare.net/Docker/kubernetes-cri-containerd-integration-by-lantao-liu-google))_
+
+![liu-lantao-slide](img/liu-lantao-cri-containerd-architecture-slide.png)
+
+- <https://mobyproject.org/kubernetes>
+- <https://www.slideshare.net/Docker/kubernetes-cri-containerd-integration-by-lantao-liu-google>
+- <https://github.com/containerd/containerd>
+- <https://github.com/containerd/cri>
+
+---
 
 ## Let's Go!
 
@@ -46,7 +99,7 @@ This quickstart was written in Nov 2018, using Docker CE 18.06.1-ce-mac73(26764)
 
 ### Enable Kubernetes Support
 
-I prefer to allow the containers via normal docker commands.
+I prefer to allow the containers to not be hidden from normal docker commands.  YMMV.
 
 ![dockerce_enable-k8s](img/dockerce-k8s-tab.png)
 
@@ -60,9 +113,11 @@ Depending on your use case(s) you might want to increase memory/disk or setup ad
 kubectl config use-context docker-for-desktop
 ```
 
-At this point, you can issue normal commands (e.g. `kubectl create -f my-special-something.yaml` or `kubectl get pods` or ___) 
+At this point, you can issue normal commands such as:
 
-You can use your new local cluster the same one interacts with a production cluster.
+- `kubectl create -f my-special-something.yaml`
+- `kubectl get pods`
+- `kubectl apply -f party-on-wayne.yaml`
 
 ### deploy the kubernetes dashboard
 
@@ -95,7 +150,7 @@ service/kubernetes-dashboard created
 
 ### A small note on proxies
 
-There are various proxies at play.  [Proxies in Kubernetes] is a good place to start.  
+There are various proxies at play.  [Proxies in Kubernetes] is a good starting point for more info.
 
 [Proxies in Kubernetes]: https://kubernetes.io/docs/concepts/cluster-administration/proxies
 
@@ -120,7 +175,9 @@ kubectl proxy
 open http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy
 ```
 
-## Self Guided demo... Deploy the k8s.io Guestbook example
+## Example: Deploy the k8s.io guestbook sample
+
+### Create namespace: "guestbook-demo"
 
 We'll first create a namespace in our cluster for experimentation:
 
@@ -129,9 +186,13 @@ kubectl create namespace guestbook-demo
 kubectl config set-context $(kubectl config current-context) --namespace=guestbook-demo
 ```
 
-### Combat RSI: kubectl/kubens
+### Tip: Combat RSI: kubectl/kubens
 
-If you work with namespaces and contexts a lot (you will) it's tedious to be dealing with `kubectl config set-context $(what? ugh fine) --namespace=OmgImStillTyping` repetitively.
+It's tedius and painful to constatntly be typing things like this:
+
+ `kubectl config set-context $(what? ugh fine) --namespace=OmgImStillTyping`
+
+kubectx and kubens to the rescue!
 
 ```bash
 # https://github.com/ahmetb/kubectx - restore sanity
@@ -149,7 +210,7 @@ Active namespace is "guestbook-demo".
 
 ### Example: Deploying PHP Guestbook application with Redis
 
-Here's the "abridged" version of the [guestbook demo]
+The "abridged" version of the [guestbook demo]:
 
 [guestbook demo]: https://kubernetes.io/docs/tutorials/stateless-application/guestbook
 
@@ -173,13 +234,13 @@ deployment.apps/frontend created
 service/frontend created
 ```
 
-### Example: Dashboard after deploying guestbook example
+### Example: Dashboard after deploying guestbook
 
 The view from the Dashboard (should) look like this:
 
-![guestbookdash](macos-docker-cluster/img/dashboard-overview-guesbookns.png)
+![guestbookdash](img/dashboard-overview-guestbookns.png)
 
-### Example: Connecting to the guestbook
+### Example: kubectl CLI after deploying guestbook
 
 ```bash
 # At this point, the full demo is up.  One could use the dashboard, or the CLI
@@ -226,58 +287,3 @@ kubectl delete deployment -l app=guestbook
 kubectl delete service -l app=guestbook
 ```
 
----
-
-## Why not mikikube?
-
-You can!  It works as advertised and designed.
-
-- [minikube] runs a local VM that is a one-node cluster.
-- [minikube] exposes a different interface/workflow/command line than working with a production cluster.
-  - `minikube this`
-  - `minikube that`
-  - `minikube sometimesTheSameAsK8sSometimesNot`
-- It can interface with a [variety of back ends ](https://github.com/kubernetes/minikube#quickstart)
-- There's some degree of effort to sorting out various drivers, configuration, etc.
-- There's so much to learn about minikube itself!
-  - How to mount host folders (`minikube mount localPath:vmPath`)
-  - How to manage [minikube add-ons](https://github.com/kubernetes/minikube/blob/master/docs/addons.md) such as coredns, ingress, heapster, dashboard, etc...
-  - How to debug minikube itself!
-- ...
-
-After getting things working, your laptop will be hard at work running / maintaining minikube in a VM.  You will also now have another layer of abstraction to feed/water/understand/love (minikube itself).  
-
-_There is another way..._
-
-[minikube]: https://github.com/kubernetes/minikube
-
-## Run Kubernetes (itself) as...docker containers
-
-Docker did this. It's awesome.
-
-A full exploration of moby, containerd, cri, and the general technical approach (the reason *why* IMHO it's awesome) is beyond the scope of this quickstart.
-
-### Breadcrumb trail
-
-For those interested...here's a bit of context and history.
-
-_(taken from [mobyproject.org post](https://blog.mobyproject.org/moby-and-kubernetes-bf888ab31e38))_
-
-![containerd](img/containerd-timeline.png)
-
-- <https://blog.docker.com/2017/10/docker-for-mac-and-windows-with-kubernetes-beta>
-- <https://blog.docker.com/2017/10/kubernetes-docker-platform-and-moby-project>
-- <https://blog.docker.com/2018/01/docker-mac-kubernetes>
-- <https://blog.mobyproject.org/moby-and-kubernetes-bf888ab31e38>
-- <https://blog.docker.com/2018/07/kubernetes-is-now-available-in-docker-desktop-stable-channel>
-
-### The now (and future): K8s and containerd, CRI
-
-_(taken from [Liu Lantao's talk](https://www.slideshare.net/Docker/kubernetes-cri-containerd-integration-by-lantao-liu-google))_
-
-![liu-lantao-slide](img/liu-lantao-cri-containerd-architecture-slide.png)
-
-- <https://mobyproject.org/kubernetes>
-- <https://www.slideshare.net/Docker/kubernetes-cri-containerd-integration-by-lantao-liu-google>
-- <https://github.com/containerd/containerd>
-- <https://github.com/containerd/cri>
