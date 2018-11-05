@@ -1,6 +1,6 @@
 - [Run a local kubernetes cluster on your MacBook](#run-a-local-kubernetes-cluster-on-your-macbook)
   - [Who might want to do this](#who-might-want-to-do-this)
-  - [But wait...Why not mikikube?](#but-waitwhy-not-mikikube)
+  - [But wait...Why not minikube?](#but-waitwhy-not-minikube)
   - [Run Kubernetes (itself) as...docker containers](#run-kubernetes-itself-asdocker-containers)
     - [The now (and future): K8s and containerd, CRI](#the-now-and-future-k8s-and-containerd-cri)
   - [Let's Go!](#lets-go)
@@ -17,6 +17,8 @@
     - [Example: Dashboard after deploying guestbook](#example-dashboard-after-deploying-guestbook)
     - [Example: kubectl CLI after deploying guestbook](#example-kubectl-cli-after-deploying-guestbook)
     - [Example: Clean up](#example-clean-up)
+  - ["I don't like this, please make it stop"](#%22i-dont-like-this-please-make-it-stop%22)
+  - [How to tail Docker for Mac logs](#how-to-tail-docker-for-mac-logs)
   
 # Run a local kubernetes cluster on your MacBook
 
@@ -33,7 +35,7 @@ This is a quickstart guide to using kubernetes locally on your Mac.  Following i
 
 ---
 
-## But wait...Why not mikikube?
+## But wait...Why not minikube?
 
 You can!  It works as advertised and designed.
 
@@ -171,9 +173,18 @@ A nice overview of different ways to access a cluster is here:
 ## Connect to the dashboard
 
 ```bash
+# start the proxy so we can access the cluster
 kubectl proxy
+
+# launch the default browser
 open http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy
+
+# at the login screen, click "SKIP"
 ```
+
+Configuring more advanced auth than "SKIP", or accessing your local cluster (or services in it) without
+using `kubectl proxy` is certainly possible, and outside the scope of this quickstart.  You can create
+an ingress controller, set up certs / TLS, etc.  See the documentation for the dashboard project for more details.
 
 ## Example: Deploy the k8s.io guestbook sample
 
@@ -286,4 +297,23 @@ kubectl delete service -l app=redis
 kubectl delete deployment -l app=guestbook
 kubectl delete service -l app=guestbook
 ```
+
+## "I don't like this, please make it stop"
+
+![dontpanic](img/dontpanic.jpg)
+![dockerkube-reset](img/dockerkube-reset.png)
+
+## How to tail Docker for Mac logs
+
+<https://docs.docker.com/docker-for-mac/troubleshoot/#check-the-logs>
+
+```bash
+pred='process matches ".*(ocker|vpnkit).*"
+  || (process in {"taskgated-helper", "launchservicesd", "kernel"} && eventMessage contains[c] "docker")'
+/usr/bin/log stream --style syslog --level=debug --color=always --predicate "$pred"
+```
+
+
+
+
 
