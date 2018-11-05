@@ -1,3 +1,5 @@
+# Run a local kubernetes cluster on your MacBook
+
 - [Run a local kubernetes cluster on your MacBook](#run-a-local-kubernetes-cluster-on-your-macbook)
   - [Who might want to do this](#who-might-want-to-do-this)
   - [But wait...Why not minikube?](#but-waitwhy-not-minikube)
@@ -20,11 +22,9 @@
   - ["I don't like this, please make it stop"](#%22i-dont-like-this-please-make-it-stop%22)
   - [How to tail Docker for Mac logs](#how-to-tail-docker-for-mac-logs)
   
-# Run a local kubernetes cluster on your MacBook
-
 This is a quickstart guide to using kubernetes locally on your Mac.  Following it will yield a lightweight (fast) kuberenetes cluster for local development, fun and profit.  
 
-> I highly recommend it as an alternative to [minikube]. -_Me_
+> I highly recommend it as an alternative to [minikube]. -_halcyondude_
 
 ## Who might want to do this
 
@@ -44,7 +44,7 @@ You can!  It works as advertised and designed.
   - `minikube this`
   - `minikube that`
   - `minikube sometimesTheSameAsK8sSometimesNot`
-- It can interface with a [variety of back ends ](https://github.com/kubernetes/minikube#quickstart)
+- It can interface with a [variety of back ends](https://github.com/kubernetes/minikube#quickstart)
 - There's some degree of effort to sorting out various drivers, configuration, etc.
 - There's so much to learn about minikube itself!
   - How to mount host folders (`minikube mount localPath:vmPath`)
@@ -125,6 +125,8 @@ At this point, you can issue normal commands such as:
 
 The official [dashboard wiki] is the source of truth.  
 
+[dashboard wiki]: https://github.com/kubernetes/dashboard/wiki
+
 Deploy directly from github master...
 
 ```bash
@@ -199,7 +201,7 @@ kubectl config set-context $(kubectl config current-context) --namespace=guestbo
 
 ### Tip: Combat RSI: kubectl/kubens
 
-It's tedius and painful to constatntly be typing things like this:
+It's tedious and painful to constantly be typing things like this:
 
  `kubectl config set-context $(what? ugh fine) --namespace=OmgImStillTyping`
 
@@ -278,13 +280,17 @@ redis-master-55db5f7567   1         1         1       22m
 redis-slave-584c66c5b5    2         2         2       22m
 ```
 
-There's a great explanation on how to access services in the kubernetes docs ([apiserver-proxy-urls]).
+There's a great explanation on how to access services in the kubernetes docs here: [apiserver-proxy-urls].
+
+To manually construct a proxy URL, follow this form:
 
 ```http://kubernetes_master_address/api/v1/namespaces/namespace_name/services/[https:]service_name[:port_name]/proxy```
 
 ```bash
+
 # In our case, to access the guestbook via web browser:
 open http://localhost:8001/api/v1/namespaces/guestbook-demo/services/frontend/proxy
+
 ```
 
 [apiserver-proxy-urls]: https://kubernetes.io/docs/tasks/administer-cluster/access-cluster-services/#manually-constructing-apiserver-proxy-urls
@@ -292,10 +298,12 @@ open http://localhost:8001/api/v1/namespaces/guestbook-demo/services/frontend/pr
 ### Example: Clean up
 
 ```bash
+
 kubectl delete deployment -l app=redis
 kubectl delete service -l app=redis
 kubectl delete deployment -l app=guestbook
 kubectl delete service -l app=guestbook
+
 ```
 
 ## "I don't like this, please make it stop"
@@ -308,9 +316,11 @@ kubectl delete service -l app=guestbook
 <https://docs.docker.com/docker-for-mac/troubleshoot/#check-the-logs>
 
 ```bash
+
 pred='process matches ".*(ocker|vpnkit).*"
   || (process in {"taskgated-helper", "launchservicesd", "kernel"} && eventMessage contains[c] "docker")'
 /usr/bin/log stream --style syslog --level=debug --color=always --predicate "$pred"
+
 ```
 
 
