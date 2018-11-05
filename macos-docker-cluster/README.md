@@ -1,16 +1,265 @@
+- [Run a local kubernetes cluster on your MacBook](#run-a-local-kubernetes-cluster-on-your-macbook)
+  - [Who might want to do this](#who-might-want-to-do-this)
+  - [Let's Go!](#lets-go)
+    - [Install Docker CI for Mac](#install-docker-ci-for-mac)
+    - [Enable Kubernetes Support](#enable-kubernetes-support)
+    - [Set your context](#set-your-context)
+    - [deploy the kubernetes dashboard](#deploy-the-kubernetes-dashboard)
+    - [A small note on proxies](#a-small-note-on-proxies)
+  - [Connect to the dashboard](#connect-to-the-dashboard)
+  - [Self Guided demo... Deploy the k8s.io Guestbook example](#self-guided-demo-deploy-the-k8sio-guestbook-example)
+    - [Combat RSI: kubectl/kubens](#combat-rsi-kubectlkubens)
+    - [Example: Deploying PHP Guestbook application with Redis](#example-deploying-php-guestbook-application-with-redis)
+    - [Example: Dashboard after deploying guestbook example](#example-dashboard-after-deploying-guestbook-example)
+    - [Example: Connecting to the guestbook](#example-connecting-to-the-guestbook)
+    - [Example: Clean up](#example-clean-up)
+  - [Why not mikikube?](#why-not-mikikube)
+  - [Run Kubernetes (itself) as...docker containers](#run-kubernetes-itself-asdocker-containers)
+    - [Breadcrumb trail](#breadcrumb-trail)
+    - [The now (and future): K8s and containerd, CRI](#the-now-and-future-k8s-and-containerd-cri)
 
 # Run a local kubernetes cluster on your MacBook
 
-This is a quickstart guide to using kubernetes locally on your Mac.  Following  this guide will yield a lightweight (fast) kuberenetes cluster for local development, fun and profit.  
+This is a quickstart guide to using kubernetes locally on your Mac.  Following it will yield a lightweight (fast) kuberenetes cluster for local development, fun and profit.  
 
-> I highly recommend it as an alternative to minikube.
-> - _me_
+> I highly recommend it as an alternative to [minikube]. -_Me_
 
-## Why not minikube
+## Who might want to do this
 
-I find minikube to be a bit overkill on a laptop, and don't really like the user experience.  It exposes to me (as a developer) a different interface/workflow/command line than a production cluster. Why use/learn/entertain a divergent set of commands?  I also find this to be much faster and architecturally more sound and futureproof.  The full rationale is beyond the scope of this quickstart. If interested to learn more and/or dig deeper the following is a good breadcrumb trail.
+- Anyone who's developing containerzed applications or microservices and deploying them to Kubernetes.
+- Anyone without access (or funds) to run dev sandbox clusters in GKE / AWS / Azure / ____.
+- Anyone with    access (or funds) to run dev sandbox clusters in GKE / AWS / Azure / ____.
+- Anyone who wants to rapidly prototype K8s configuration / yamls locally.  Without needing to be connected to the internets.
+- Anyone (ok this is me) who likes waiting ms (vs. sec) for page refreshes --> Kubernetes Dashboard.
 
-### History / Context
+## Let's Go!
+
+### Install Docker CI for Mac
+
+This guide assumes you're running Docker Community Edition (CE) for Mac.  If you haven't already, [install Docker CE for Mac].
+
+[install Docker CE for Mac]: https://docs.docker.com/docker-for-mac/install
+
+This quickstart was written in Nov 2018, using Docker CE 18.06.1-ce-mac73(26764).
+
+![dockerce_version](img/dockerce-version.png)
+
+### Enable Kubernetes Support
+
+I prefer to allow the containers via normal docker commands.
+
+![dockerce_enable-k8s](img/dockerce-k8s-tab.png)
+
+Depending on your use case(s) you might want to increase memory/disk or setup additional storage.  The defaults work quite well.
+
+![dockerce_resources](img/dockerce-resources.png)
+
+### Set your context
+
+```bash
+kubectl config use-context docker-for-desktop
+```
+
+At this point, you can issue normal commands (e.g. `kubectl create -f my-special-something.yaml` or `kubectl get pods` or ___) 
+
+You can use your new local cluster the same one interacts with a production cluster.
+
+### deploy the kubernetes dashboard
+
+The official [dashboard wiki] is the source of truth.  
+
+Deploy directly from github master...
+
+```bash
+kubectl create -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
+```
+
+or
+
+```bash
+git clone git@github.com:kubernetes/dashboard.git && cd dashboard
+kubectl create -f src/deploy/recommended/kubernetes-dashboard.yaml
+```
+
+Example:
+
+```shell
+$ kubectl create -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
+secret/kubernetes-dashboard-certs created
+serviceaccount/kubernetes-dashboard created
+role.rbac.authorization.k8s.io/kubernetes-dashboard-minimal created
+rolebinding.rbac.authorization.k8s.io/kubernetes-dashboard-minimal created
+deployment.apps/kubernetes-dashboard created
+service/kubernetes-dashboard created
+```
+
+### A small note on proxies
+
+There are various proxies at play.  [Proxies in Kubernetes] is a good place to start.  
+
+[Proxies in Kubernetes]: https://kubernetes.io/docs/concepts/cluster-administration/proxies
+
+We're going to use `kubectl proxy` to create a local port, thru which we can access the dashboard running a service in our newly formed cluster.  Of course this can all be customized...
+
+> ```kubectl proxy -h```
+> 
+> Creates a proxy server or application-level gateway between localhost and the Kubernetes API Server. It also allows
+> serving static content over specified HTTP path. All incoming data enters through one port and gets forwarded to the
+> remote kubernetes API Server port, except for the path matching the static content path.
+>
+> _(...)_
+
+A nice overview of different ways to access a cluster is here:
+
+<https://kubernetes.io/docs/tasks/access-application-cluster/access-cluster/#directly-accessing-the-rest-api>
+
+## Connect to the dashboard
+
+```bash
+kubectl proxy
+open http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy
+```
+
+## Self Guided demo... Deploy the k8s.io Guestbook example
+
+We'll first create a namespace in our cluster for experimentation:
+
+```bash
+kubectl create namespace guestbook-demo
+kubectl config set-context $(kubectl config current-context) --namespace=guestbook-demo
+```
+
+### Combat RSI: kubectl/kubens
+
+If you work with namespaces and contexts a lot (you will) it's tedious to be dealing with `kubectl config set-context $(what? ugh fine) --namespace=OmgImStillTyping` repetitively.
+
+```bash
+# https://github.com/ahmetb/kubectx - restore sanity
+$ kubens --help
+USAGE:
+  kubens                    : list the namespaces in the current context
+  kubens <NAME>             : change the active namespace of current context
+  kubens -                  : switch to the previous namespace in this context
+  kubens -h,--help          : show this message
+
+$ kubens guestbook-demo
+Context "docker-for-desktop" modified.
+Active namespace is "guestbook-demo".
+```
+
+### Example: Deploying PHP Guestbook application with Redis
+
+Here's the "abridged" version of the [guestbook demo]
+
+[guestbook demo]: https://kubernetes.io/docs/tutorials/stateless-application/guestbook
+
+```bash
+kubectl apply -f https://k8s.io/examples/application/guestbook/redis-master-deployment.yaml
+kubectl apply -f https://k8s.io/examples/application/guestbook/redis-master-service.yaml
+kubectl apply -f https://k8s.io/examples/application/guestbook/redis-slave-deployment.yaml
+kubectl apply -f https://k8s.io/examples/application/guestbook/redis-slave-service.yaml
+kubectl apply -f https://k8s.io/examples/application/guestbook/frontend-deployment.yaml
+kubectl apply -f https://k8s.io/examples/application/guestbook/frontend-service.yaml
+```
+
+The following will be created:
+
+```text
+deployment.apps/redis-master created
+service/redis-master created
+deployment.apps/redis-slave created
+service/redis-slave created
+deployment.apps/frontend created
+service/frontend created
+```
+
+### Example: Dashboard after deploying guestbook example
+
+The view from the Dashboard (should) look like this:
+
+![guestbookdash](macos-docker-cluster/img/dashboard-overview-guesbookns.png)
+
+### Example: Connecting to the guestbook
+
+```bash
+# At this point, the full demo is up.  One could use the dashboard, or the CLI
+
+$ kubectl get pods
+NAME                            READY   STATUS    RESTARTS   AGE
+frontend-5c548f4769-mw5bp       1/1     Running   0          21m
+frontend-5c548f4769-tgh75       1/1     Running   0          21m
+frontend-5c548f4769-tmk5v       1/1     Running   0          21m
+redis-master-55db5f7567-9gzt8   1/1     Running   0          22m
+redis-slave-584c66c5b5-wh9hr    1/1     Running   0          21m
+redis-slave-584c66c5b5-xfs4r    1/1     Running   0          21m
+
+$ kubectl get services
+NAME           TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+frontend       NodePort    10.103.203.196   <none>        80:31062/TCP   21m
+redis-master   ClusterIP   10.101.104.224   <none>        6379/TCP       22m
+redis-slave    ClusterIP   10.96.60.87      <none>        6379/TCP       22m
+
+$ kubectl get replicasets
+NAME                      DESIRED   CURRENT   READY   AGE
+frontend-5c548f4769       3         3         3       22m
+redis-master-55db5f7567   1         1         1       22m
+redis-slave-584c66c5b5    2         2         2       22m
+```
+
+There's a great explanation on how to access services in the kubernetes docs ([apiserver-proxy-urls]).
+
+```http://kubernetes_master_address/api/v1/namespaces/namespace_name/services/[https:]service_name[:port_name]/proxy```
+
+```bash
+# In our case, to access the guestbook via web browser:
+open http://localhost:8001/api/v1/namespaces/guestbook-demo/services/frontend/proxy
+```
+
+[apiserver-proxy-urls]: https://kubernetes.io/docs/tasks/administer-cluster/access-cluster-services/#manually-constructing-apiserver-proxy-urls
+
+### Example: Clean up
+
+```bash
+kubectl delete deployment -l app=redis
+kubectl delete service -l app=redis
+kubectl delete deployment -l app=guestbook
+kubectl delete service -l app=guestbook
+```
+
+---
+
+## Why not mikikube?
+
+You can!  It works as advertised and designed.
+
+- [minikube] runs a local VM that is a one-node cluster.
+- [minikube] exposes a different interface/workflow/command line than working with a production cluster.
+  - `minikube this`
+  - `minikube that`
+  - `minikube sometimesTheSameAsK8sSometimesNot`
+- It can interface with a [variety of back ends ](https://github.com/kubernetes/minikube#quickstart)
+- There's some degree of effort to sorting out various drivers, configuration, etc.
+- There's so much to learn about minikube itself!
+  - How to mount host folders (`minikube mount localPath:vmPath`)
+  - How to manage [minikube add-ons](https://github.com/kubernetes/minikube/blob/master/docs/addons.md) such as coredns, ingress, heapster, dashboard, etc...
+  - How to debug minikube itself!
+- ...
+
+After getting things working, your laptop will be hard at work running / maintaining minikube in a VM.  You will also now have another layer of abstraction to feed/water/understand/love (minikube itself).  
+
+_There is another way..._
+
+[minikube]: https://github.com/kubernetes/minikube
+
+## Run Kubernetes (itself) as...docker containers
+
+Docker did this. It's awesome.
+
+A full exploration of moby, containerd, cri, and the general technical approach (the reason *why* IMHO it's awesome) is beyond the scope of this quickstart.
+
+### Breadcrumb trail
+
+For those interested...here's a bit of context and history.
 
 _(taken from [mobyproject.org post](https://blog.mobyproject.org/moby-and-kubernetes-bf888ab31e38))_
 
@@ -32,60 +281,3 @@ _(taken from [Liu Lantao's talk](https://www.slideshare.net/Docker/kubernetes-cr
 - <https://www.slideshare.net/Docker/kubernetes-cri-containerd-integration-by-lantao-liu-google>
 - <https://github.com/containerd/containerd>
 - <https://github.com/containerd/cri>
-
-## Enable Kubernetes Support
-
-This guide assumes you're already running Docker CE for Mac.
-
-![dockerce_version](img/dockerce-version.png)
-
-Enable Kubernetes support.  I prefer to allow the containers being leveraged to appear via normal docker commands.  
-
-![dockerce_enable-k8s](img/dockerce-k8s-tab.png)
-
-Depending on your use cases you might want to bump memory/disk, or setup additional storage.
-
-![dockerce_resources](img/dockerce-resources.png)
-
-[dashboard wiki]: https://github.com/kubernetes/dashboard/wiki
-
-## Set your context
-
-```bash
-kubectl config use-context docker-for-desktop
-```
-
-## deploy the kubernetes dashboard
-
-The official [dashboard wiki] is the source of truth.  There's a nice issue / thread ([kubernetes/dashboard: 2474](https://github.com/kubernetes/dashboard/issues/2474)for some background if you're really curious about why your normal kubeconfig file will likely not work.  TLDR: you need a token, not a cert.
-
-Deploy directly from github HEAD...
-
-```bash
-kubectl create -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
-```
-
-or
-
-```bash
-git clone git@github.com:kubernetes/dashboard.git && cd dashboard
-kubectl create -f src/deploy/recommended/kubernetes-dashboard.yaml
-```
-
-Example:
-
-```shell
-(⎈ |docker-for-desktop:default)halcyondude@chezmoi:~/k8s$ kubectl create -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
-secret/kubernetes-dashboard-certs created
-serviceaccount/kubernetes-dashboard created
-role.rbac.authorization.k8s.io/kubernetes-dashboard-minimal created
-rolebinding.rbac.authorization.k8s.io/kubernetes-dashboard-minimal created
-deployment.apps/kubernetes-dashboard created
-service/kubernetes-dashboard created
-```
-
-## access dashboard
-
-There are a number of options and approaches regarding security that are out of scope for this quickstart.
-
-(TODO: expand)
