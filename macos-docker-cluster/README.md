@@ -1,15 +1,16 @@
 # Run a local kubernetes cluster on your MacBook
 
 - [Run a local kubernetes cluster on your MacBook](#run-a-local-kubernetes-cluster-on-your-macbook)
-  - [Who might want to do this](#who-might-want-to-do-this)
-  - [But wait...Why not minikube?](#but-waitwhy-not-minikube)
-  - [Run Kubernetes (itself) as...docker containers](#run-kubernetes-itself-asdocker-containers)
+  - [What this is](#what-this-is)
+  - [Who this is for](#who-this-is-for)
+  - [But wait...Why not minikube](#but-waitwhy-not-minikube)
+  - [Run Kubernetes (itself) via docker containers](#run-kubernetes-itself-via-docker-containers)
     - [The now (and future): K8s and containerd, CRI](#the-now-and-future-k8s-and-containerd-cri)
   - [Let's Go!](#lets-go)
     - [Install Docker CI for Mac](#install-docker-ci-for-mac)
     - [Enable Kubernetes Support](#enable-kubernetes-support)
     - [Set your context](#set-your-context)
-    - [deploy the kubernetes dashboard](#deploy-the-kubernetes-dashboard)
+    - [Deploy the kubernetes dashboard](#deploy-the-kubernetes-dashboard)
     - [A small note on proxies](#a-small-note-on-proxies)
   - [Connect to the dashboard](#connect-to-the-dashboard)
   - [Example: Deploy the k8s.io guestbook sample](#example-deploy-the-k8sio-guestbook-sample)
@@ -22,43 +23,50 @@
   - ["I don't like this, please make it stop"](#%22i-dont-like-this-please-make-it-stop%22)
   - [How to tail Docker for Mac logs](#how-to-tail-docker-for-mac-logs)
   
-This is a quickstart guide to using kubernetes locally on your Mac.  Following it will yield a lightweight (fast) kuberenetes cluster for local development, fun and profit.  
+## What this is
+
+This is a quickstart guide to using kubernetes locally on your Mac. It will yield a lightweight (fast) kuberenetes cluster for local development, fun and profit.  
 
 > I highly recommend it as an alternative to [minikube]. -_halcyondude_
 
-## Who might want to do this
+## Who this is for
 
-- Anyone who's developing containerzed applications or microservices and deploying them to Kubernetes.
-- Anyone without access (or funds) to run dev sandbox clusters in GKE / AWS / Azure / ____.
+- Anyone using containers in their iterative development workflow
+- Anyone deploying their {applications, microservices, creations} to Kubernetes.
+- Anyone without access or funds to run dev sandbox clusters in GKE / AWS / Azure / ____.
 - Anyone who wants to rapidly prototype K8s configuration / yamls locally.
-- Anyone (ok this is me) who likes waiting ms (vs. sec) for page refreshes --> Kubernetes Dashboard.
+  - Examples := {plane, beach, couch, snowstorm sans internet}
+- Anyone (this is me) who prefers milliseconds to seconds for page refreshes --> Kubernetes Dashboard.
+  
+## But wait...Why not minikube
 
----
+_(skip to [Let's Go!](#lets-go))_
 
-## But wait...Why not minikube?
-
-You can!  It works as advertised and designed.
+You can!  It works as advertised and designed.  It's not broken.
 
 - [minikube] runs a local VM that is a one-node cluster.
 - [minikube] exposes a different interface/workflow/command line than working with a production cluster.
   - `minikube this`
   - `minikube that`
   - `minikube sometimesTheSameAsK8sSometimesNot`
-- It can interface with a [variety of back ends](https://github.com/kubernetes/minikube#quickstart)
-- There's some degree of effort to sorting out various drivers, configuration, etc.
-- There's so much to learn about minikube itself!
+- [minikube] interfaces with a [variety of back ends](https://github.com/kubernetes/minikube#quickstart)
+  - _There's effort involved with sorting out various drivers and configuration that is not the same as production_
+- There's so much to learn about minikube!
   - How to mount host folders (`minikube mount localPath:vmPath`)
   - How to manage [minikube add-ons](https://github.com/kubernetes/minikube/blob/master/docs/addons.md) such as coredns, ingress, heapster, dashboard, etc...
   - How to debug minikube itself!
 - ...
 
-After getting things working, your laptop will be hard at work running / maintaining minikube in a VM.  You will also now have another layer of abstraction to feed/water/understand/love (minikube itself).  
+After getting things working:
+
+1. Your laptop will be hard at work running / maintaining minikube in a VM.  
+2. You have another layer of abstraction to feed/water/understand/love (minikube itself).  
 
 _There is another way..._
 
 [minikube]: https://github.com/kubernetes/minikube
 
-## Run Kubernetes (itself) as...docker containers
+## Run Kubernetes (itself) via docker containers
 
 Docker did this. It's awesome. A full exploration of moby, containerd, cri, and the general technical approach (the reason *why* IMHO it's awesome) is beyond the scope of this quickstart.
 
@@ -88,6 +96,8 @@ _(taken from [Liu Lantao's talk](https://www.slideshare.net/Docker/kubernetes-cr
 ---
 
 ## Let's Go!
+
+You're still here.  **Onward!**
 
 ### Install Docker CI for Mac
 
@@ -121,7 +131,7 @@ At this point, you can issue normal commands such as:
 - `kubectl get pods`
 - `kubectl apply -f party-on-wayne.yaml`
 
-### deploy the kubernetes dashboard
+### Deploy the kubernetes dashboard
 
 The official [dashboard wiki] is the source of truth.  
 
