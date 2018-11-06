@@ -1,9 +1,11 @@
 # Portainer
 
-Portainer a a lightweight web UI that surfaces stats/info about docker images, containers, networks, and other basic info from docker instances (local or remote).  It's handy as an alternative to raw docker commands.
+Portainer a a lightweight web UI that surfaces stats and info about docker images, containers, networks, and other basic info from docker instances (local or remote).
 
+It's handy as an alternative to raw docker commands.
+
+* [portainer github] ***(start here, live demo)***
 * [portainer docs]
-* [portainer github]
 * [portainer install]
 
 [portainer docs]: https://portainer.readthedocs.io/en/latest/deployment.html
