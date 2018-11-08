@@ -68,6 +68,7 @@ Use "skaffold [command] --help" for more information about a command.
 |                  |                                                                                                              |
 | ---------------- | ------------------------------------------------------------------------------------------------------------ |
 | Project          | <https://github.com/GoogleContainerTools/skaffold>                                                           |
+| Docs             | <https://skaffold.dev> (note: these seem a little dated by explain things better)                            |
 | Video            | <https://github.com/GoogleContainerTools/skaffold/blob/master/docs/img/intro.gif>                            |
 | Examples         | <https://github.com/GoogleContainerTools/skaffold/tree/master/examples>                                      |
 | Google Marketing | <https://cloud.google.com/blog/products/gcp/introducing-skaffold-easy-and-repeatable-kubernetes-development> |
