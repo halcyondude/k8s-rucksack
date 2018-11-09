@@ -1,17 +1,18 @@
 
-- [Kubernetes](#kubernetes)
+# Kubernetes Helpers
+
+Tips and tools to make interacting with Kubernetes Clusters a bit more dandy, divine, and delicious.
+
+- [Kubernetes Helpers](#kubernetes-helpers)
     - [Rosetta Stones (aka "Cheat Sheets")](#rosetta-stones-aka-%22cheat-sheets%22)
     - [Visual Studio Code (Extensions)](#visual-studio-code-extensions)
         - [Kubernetes (by Microsoft) (vs-kubernetes-tools)](#kubernetes-by-microsoft-vs-kubernetes-tools)
         - [YAML Support by Red Hat (yaml-language-server)](#yaml-support-by-red-hat-yaml-language-server)
+        - [KubeSquash](#kubesquash)
     - [Command Line Goodies](#command-line-goodies)
         - [kube-ps1](#kube-ps1)
         - [kubectx and kubens](#kubectx-and-kubens)
         - [Kubespy](#kubespy)
-  
-# Kubernetes
-
-Tips and tools to make interacting with Kubernetes Clusters a bit more dandy, divine, and delicious.
 
 ## Rosetta Stones (aka "Cheat Sheets")
 
@@ -60,6 +61,11 @@ Red Hat's YAML plugin ([yaml-language-server]) provides a lot of utility around 
 After configuring this IntelliSense and Autocompletion will be a thing with Kubernetes specific context.  (Note: `^+space` will trigger autocomplete manually.  More detail can be found in the [VS Code docs](https://code.visualstudio.com/docs/editor/intellisense).
 
 ![yaml-support-example](img/vscode-extension-yaml-example.gif)
+
+### KubeSquash
+
+Debug your code running in kubernetes from VS Code
+https://marketplace.visualstudio.com/items?itemName=ilevine.kubesquash
 
 ## Command Line Goodies
 
