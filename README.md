@@ -11,7 +11,8 @@ Are you going on an adventure?  Sailing?  Digging?  Mining?  Flying?  Don't forg
 | [kubesquash]           | debugger            | Debug code running in k8s from vscode        | COMING_SOON |
 | [macos-docker-cluster] | local k8s on docker | alternative to minikube                      | ready       |
 | [portainer]            | minimal docker UI   | combat RSI for basic docker stuff            | ready       |
-| [tilt]                 | iterative dev tool  | if k8s is hard?  not sure how interesting    | [NOT_STARTED](https://github.com/halcyondude/k8s-rucksack/pull/6) |
+| [skaffold]             | iterative dev tool  | automate build/push/deploy when files change | IN_PROGRESS |
+| [tilt]                 | iterative dev tool  | if k8s is hard?  not sure how interesting    | IN_PROGRESS |
 
 [kail]: kail
 [kubernetes-helpers]: kubernetes-helpers
@@ -19,4 +20,4 @@ Are you going on an adventure?  Sailing?  Digging?  Mining?  Flying?  Don't forg
 [macos-docker-cluster]: macos-docker-cluster
 [portainer]: portainer
 [skaffold]: skaffold
-[tilt]: https://github.com/halcyondude/k8s-rucksack/pull/6
+[tilt]: tilt
