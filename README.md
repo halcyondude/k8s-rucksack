@@ -4,18 +4,20 @@ Are you going on an adventure?  Sailing?  Digging?  Mining?  Flying?  Don't forg
 
 ## What lies herein
 
-| this->name()           | What is this?       | Why do I care?                               | status      |
-| ---------------------- | ------------------- | -------------------------------------------- | ----------- |
-| [kail]                 | tail container logs | tail -f $manyThings, selectors, pan-pod, etc | ready |
-| [kubernetes-helpers]   | odd bits            | cli, extensions, links                       | ready       |
-| [kubesquash]           | debugger            | Debug code running in k8s from vscode        | COMING_SOON |
-| [macos-docker-cluster] | local k8s on docker | alternative to minikube                      | ready       |
-| [portainer]            | minimal docker UI   | combat RSI for basic docker stuff            | ready       |
-| [tilt]                 | iterative dev tool  | if k8s is hard?  not sure how interesting    | [NOT_STARTED](https://github.com/halcyondude/k8s-rucksack/pull/6) |
+this->name()           | What is this?       | Why do I care?                               | status
+---------------------- | ------------------- | -------------------------------------------- | -----------
+[kail]                 | tail container logs | tail -f $manyThings, selectors, pan-pod, etc | ready
+[kubernetes-helpers]   | odd bits            | cli, extensions, links                       | ready
+[kubesquash]           | debugger            | Debug code running in k8s from vscode        | COMING_SOON
+[kind]                 | k8s in docker       | because it's awesome                         | IN_PROGRESS
+[macos-docker-cluster] | local k8s on docker | alternative to minikube                      | ready
+[portainer]            | minimal docker UI   | combat RSI for basic docker stuff            | ready
+[tilt]                 | iterative dev tool  |                                              | NOT_STARTED
 
 [kail]: kail
 [kubernetes-helpers]: kubernetes-helpers
 [kubesquash]: kubesquash
+[kind]: kind
 [macos-docker-cluster]: macos-docker-cluster
 [portainer]: portainer
 [skaffold]: skaffold
