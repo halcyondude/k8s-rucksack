@@ -7,6 +7,7 @@ Are you going on an adventure?  Sailing?  Digging?  Mining?  Flying?  Don't forg
 this->name()           | What is this?       | Why do I care?                               | status
 ---------------------- | ------------------- | -------------------------------------------- | -----------
 [kail]                 | tail container logs | tail -f $manyThings, selectors, pan-pod, etc | ready
+[krew]                 | kubectl package mgr | discover and manage kubectl plugins          | ready
 [kubernetes-helpers]   | odd bits            | cli, extensions, links                       | ready
 [kubesquash]           | debugger            | Debug code running in k8s from vscode        | COMING_SOON
 [kind]                 | k8s in docker       | because it's awesome                         | IN_PROGRESS
@@ -15,6 +16,7 @@ this->name()           | What is this?       | Why do I care?                   
 [tilt]                 | iterative dev tool  |                                              | NOT_STARTED
 
 [kail]: kail
+[krew]: krew
 [kubernetes-helpers]: kubernetes-helpers
 [kubesquash]: kubesquash
 [kind]: kind
